@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+  <class name="connection.iptracker" table="iptracker">
+    <id column="id" name="id">
+        <generator class="increment" />
+    </id>
+    <property column="ipaddress" name="ipaddress" type="string"/>
+    <property column="number_of_hits" name="number_of_hits" type="integer"/>
+        
+  </class>
+</hibernate-mapping>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+  <session-factory>
+    <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+    <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+    <property name="hibernate.connection.url">Connection Url</property>
+    <property name="hibernate.connection.username">Username</property>
+    <property name="hibernate.connection.password">Password</property>
+    <mapping resource="connection/blacklistedip.hbm.xml"/>
+    <mapping resource="connection/verifiedip.hbm.xml"/>
+    <mapping resource="connection/timeclicked.hbm.xml"/>
+    <mapping resource="connection/iptracker.hbm.xml"/>
+    <mapping resource="connection/Random.hbm.xml"/>
+  </session-factory>
+</hibernate-configuration>

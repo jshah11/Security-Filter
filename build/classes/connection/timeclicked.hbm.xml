@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+  <class name="connection.timeclicked" table="timeclicked">
+      <id column="id" name="id">
+        <generator class="increment" />
+      </id>
+ 
+      <property column="time" name="time" type="long"/>
+      <property column="date" name="date" type="date"/>
+      
+      <many-to-one cascade="all" class="connection.iptracker" column="IpTrackerId" name="IpTrackerId" not-null="true" />
+  </class>
+</hibernate-mapping>
