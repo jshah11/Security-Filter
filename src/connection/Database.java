@@ -21,18 +21,28 @@ public class Database
     Session session = null;
     
 
+    /**
+     * opens the Hibernate Session
+     */
     public void opensession()
     {
        
         session = HibernateUtil.getSessionFactory().openSession();
     }
 
+    /**
+     * 
+     */
     public Database() 
     {
         
     }
     
     
+    /**
+     * Saves or updates the object in the database
+     * @param ip
+     */
     public void addtoDatabase(Object ip)
     {
         Transaction transaction = session.beginTransaction();
@@ -41,6 +51,9 @@ public class Database
         transaction.commit();
         transaction = null;
     }
+    /**
+     * closes the session
+     */
     public void closesession()
     {
         session.flush();
@@ -48,6 +61,12 @@ public class Database
         
     }
 
+    /**
+     * 
+     * @param c
+     * @param remoteAddr
+     * @return integer checking whether IP is there or not
+     */
     public int findIp(Class c,String remoteAddr) {
         
         Transaction transaction = session.beginTransaction();
@@ -70,6 +89,11 @@ public class Database
         
     }
     
+    /**
+     * 
+     * @param remoteAddr
+     * @return iptracker object if found
+     */
     public iptracker findIpTracker(String remoteAddr) {
         Transaction transaction = session.beginTransaction();
         transaction.begin();
@@ -83,6 +107,11 @@ public class Database
         
     }
     
+    /**
+     * 
+     * @param id
+     * @return
+     */
     public List<timeclicked> findTimeclicked(int id) {
         Transaction transaction = session.beginTransaction();
         transaction.begin();
@@ -99,6 +128,11 @@ public class Database
         
     }
 
+    /**
+     * 
+     * @param random
+     * @return
+     */
     public boolean checkRequest(Random random) {
         Transaction transaction = session.beginTransaction();
         transaction.begin();

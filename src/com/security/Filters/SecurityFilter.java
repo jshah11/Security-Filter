@@ -36,117 +36,54 @@ import java.util.List;
  * @author Jinal Shah
  */
 public class SecurityFilter implements Filter {
-    
+
     private static final boolean debug = false;
     private boolean check = true;
     // The filter configuration object we are associated with.  If
     // this value is null, this filter instance is not currently
     // configured. 
     private FilterConfig filterConfig = null;
-    
+
+    /**
+     * 
+     */
     public SecurityFilter() {
-    }    
-    
+    }
+
     private void doBeforeProcessing(RequestWrapper request, ResponseWrapper response)
             throws IOException, ServletException {
         if (debug) {
             log("NewFilter:DoBeforeProcessing");
         }
+    }
 
-        // Write code here to process the request and/or response before
-        // the rest of the filter chain is invoked.
-
-        // For example, a filter that implements setParameter() on a request
-        // wrapper could set parameters on the request before passing it on
-        // to the filter chain.
-	/*
-        String [] valsOne = {"val1a", "val1b"};
-        String [] valsTwo = {"val2a", "val2b", "val2c"};
-        request.setParameter("name1", valsOne);
-        request.setParameter("nameTwo", valsTwo);
-         */
-
-        // For example, a logging filter might log items on the request object,
-        // such as the parameters.
-	/*
-        for (Enumeration en = request.getParameterNames(); en.hasMoreElements(); ) {
-        String name = (String)en.nextElement();
-        String values[] = request.getParameterValues(name);
-        int n = values.length;
-        StringBuffer buf = new StringBuffer();
-        buf.append(name);
-        buf.append("=");
-        for(int i=0; i < n; i++) {
-        buf.append(values[i]);
-        if (i < n-1)
-        buf.append(",");
-        }
-        log(buf.toString());
-        }
-         */
-    }    
-    
     private void doAfterProcessing(RequestWrapper request, ResponseWrapper response)
             throws IOException, ServletException {
         if (debug) {
             log("NewFilter:DoAfterProcessing");
         }
-        if(!request.getRequestURI().equals("/Test1/Security/Error.jsp") )
-        {
-            if(check)
-            {
+        if (!request.getRequestURI().equals("/Test1/Security/Error.jsp")) {
+            if (check) {
                 String random = random();
-                request.getSession().setAttribute(request.getSession().getId(),random);
+                request.getSession().setAttribute(request.getSession().getId(), random);
                 Database db = new Database();
                 db.opensession();
                 db.addtoDatabase(new Random(request.getSession().getId(), request.getRemoteHost(), random));
                 db.closesession();
             }
         }
-        // Write code here to process the request and/or response after
-        // the rest of the filter chain is invoked.
-
-        // For example, a logging filter might log the attributes on the
-        // request object after the request has been processed. 
-	/*
-        for (Enumeration en = request.getAttributeNames(); en.hasMoreElements(); ) {
-        String name = (String)en.nextElement();
-        Object value = request.getAttribute(name);
-        log("attribute: " + name + "=" + value.toString());
-        
-        }
-         */
-
-        // For example, a filter might append something to the response.
-	/*
-        PrintWriter respOut = new PrintWriter(response.getWriter());
-        respOut.println("<p><strong>This has been appended by an intrusive filter.</strong></p>");
-        
-        respOut.println("<p>Params (after the filter chain):<br>");
-        for (Enumeration en = request.getParameterNames(); en.hasMoreElements(); ) {
-        String name = (String)en.nextElement();
-        String values[] = request.getParameterValues(name);
-        int n = values.length;
-        StringBuffer buf = new StringBuffer();
-        buf.append(name);
-        buf.append("=");
-        for(int i=0; i < n; i++) {
-        buf.append(values[i]);
-        if (i < n-1)
-        buf.append(",");
-        }
-        log(buf.toString());
-        respOut.println(buf.toString() + "<br>");
-        }
-        respOut.println("</p>");
-         */
     }
-    public String random()
-    {
+
+    /**
+     * 
+     * @return Random String generated
+     */
+    public String random() {
         SecureRandom srandom = new SecureRandom();
-        
+
         return new BigInteger(176, srandom).toString(32);
     }
+
     /**
      *
      * @param request The servlet request we are processing
@@ -156,10 +93,11 @@ public class SecurityFilter implements Filter {
      * @exception IOException if an input/output error occurs
      * @exception ServletException if a servlet error occurs
      */
+    @Override
     public void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain)
             throws IOException, ServletException {
-        
+
         if (debug) {
             log("NewFilter:doFilter()");
         }
@@ -174,15 +112,14 @@ public class SecurityFilter implements Filter {
         // include requests.
         RequestWrapper wrappedRequest = new RequestWrapper((HttpServletRequest) request);
         ResponseWrapper wrappedResponse = new ResponseWrapper((HttpServletResponse) response);
-        if(((HttpServletRequest) request).getMethod().equalsIgnoreCase("POST"))
-        {
+        if (((HttpServletRequest) request).getMethod().equalsIgnoreCase("POST")) {
             //check((HttpServletRequest) request, (HttpServletResponse) response);
             BruteForce((HttpServletRequest) request, (HttpServletResponse) response);
         }
         doBeforeProcessing(wrappedRequest, wrappedResponse);
-        
+
         Throwable problem = null;
-        
+
         try {
             chain.doFilter(wrappedRequest, wrappedResponse);
         } catch (Throwable t) {
@@ -191,9 +128,9 @@ public class SecurityFilter implements Filter {
             // rethrow the problem after that.
             problem = t;
         }
-        
+
         doAfterProcessing(wrappedRequest, wrappedResponse);
-        
+
         // If there was a problem, we want to rethrow it if it is
         // a known type, otherwise log it.
         if (problem != null) {
@@ -209,6 +146,7 @@ public class SecurityFilter implements Filter {
 
     /**
      * Return the filter configuration object for this filter.
+     * @return 
      */
     public FilterConfig getFilterConfig() {
         return (this.filterConfig);
@@ -226,16 +164,19 @@ public class SecurityFilter implements Filter {
     /**
      * Destroy method for this filter 
      */
-    public void destroy() {        
+    @Override
+    public void destroy() {
     }
 
     /**
      * Init method for this filter 
+     * @param filterConfig 
      */
-    public void init(FilterConfig filterConfig) {        
+    @Override
+    public void init(FilterConfig filterConfig) {
         this.filterConfig = filterConfig;
         if (filterConfig != null) {
-            if (debug) {                
+            if (debug) {
                 log("NewFilter: Initializing filter");
             }
         }
@@ -249,26 +190,26 @@ public class SecurityFilter implements Filter {
         if (filterConfig == null) {
             return ("NewFilter()");
         }
-        StringBuffer sb = new StringBuffer("NewFilter(");
+        StringBuilder sb = new StringBuilder("NewFilter(");
         sb.append(filterConfig);
         sb.append(")");
         return (sb.toString());
-        
+
     }
-    
+
     private void sendProcessingError(Throwable t, ServletResponse response) {
-        String stackTrace = getStackTrace(t);        
-        
+        String stackTrace = getStackTrace(t);
+
         if (stackTrace != null && !stackTrace.equals("")) {
             try {
                 response.setContentType("text/html");
                 PrintStream ps = new PrintStream(response.getOutputStream());
-                PrintWriter pw = new PrintWriter(ps);                
+                PrintWriter pw = new PrintWriter(ps);
                 pw.print("<html>\n<head>\n<title>Error</title>\n</head>\n<body>\n"); //NOI18N
 
                 // PENDING! Localize this for next official release
-                pw.print("<h1>The resource did not process correctly</h1>\n<pre>\n");                
-                pw.print(stackTrace);                
+                pw.print("<h1>The resource did not process correctly</h1>\n<pre>\n");
+                pw.print(stackTrace);
                 pw.print("</pre></body>\n</html>"); //NOI18N
                 pw.close();
                 ps.close();
@@ -285,7 +226,12 @@ public class SecurityFilter implements Filter {
             }
         }
     }
-    
+
+    /**
+     * 
+     * @param t
+     * @return
+     */
     public static String getStackTrace(Throwable t) {
         String stackTrace = null;
         try {
@@ -299,18 +245,25 @@ public class SecurityFilter implements Filter {
         }
         return stackTrace;
     }
-    
+
+    /**
+     * 
+     * @param msg
+     */
     public void log(String msg) {
-        filterConfig.getServletContext().log(msg);        
+        filterConfig.getServletContext().log(msg);
     }
 
+    /**
+     * 
+     * @param request
+     * @param httpServletResponse
+     */
     private void check(HttpServletRequest request, HttpServletResponse httpServletResponse) {
         Database db = new Database();
         db.opensession();
-        if(!request.getSession().isNew())
-        {
-            if(!db.checkRequest(new Random(request.getSession().getId(), request.getRemoteAddr(), (String)request.getSession().getAttribute(request.getSession().getId()))))
-            {
+        if (!request.getSession().isNew()) {
+            if (!db.checkRequest(new Random(request.getSession().getId(), request.getRemoteAddr(), (String) request.getSession().getAttribute(request.getSession().getId())))) {
                 try {
                     httpServletResponse.sendRedirect("Security/Error.jsp");
                     check = false;
@@ -318,15 +271,13 @@ public class SecurityFilter implements Filter {
                     Logger.getLogger(SecurityFilter.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-        }
-        else
-        {
+        } else {
             try {
-                    httpServletResponse.sendRedirect("Security/Error.jsp");
-                    check=false;
-                } catch (IOException ex) {
-                    Logger.getLogger(SecurityFilter.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                httpServletResponse.sendRedirect("Security/Error.jsp");
+                check = false;
+            } catch (IOException ex) {
+                Logger.getLogger(SecurityFilter.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         db.closesession();
     }
@@ -339,7 +290,7 @@ public class SecurityFilter implements Filter {
      * You can get access to the wrapped request using the method getRequest()
      */
     class RequestWrapper extends HttpServletRequestWrapper {
-        
+
         public RequestWrapper(HttpServletRequest request) {
             super(request);
         }
@@ -347,12 +298,12 @@ public class SecurityFilter implements Filter {
         // you must also override the getParameter, getParameterValues, getParameterMap,
         // and getParameterNames methods.
         protected Hashtable localParams = null;
-        
+
         public void setParameter(String name, String[] values) {
             if (debug) {
                 System.out.println("NewFilter::setParameter(" + name + "=" + values + ")" + " localParams = " + localParams);
             }
-            
+
             if (localParams == null) {
                 localParams = new Hashtable();
                 // Copy the parameters from the underlying request.
@@ -366,7 +317,7 @@ public class SecurityFilter implements Filter {
             }
             localParams.put(name, values);
         }
-        
+
         @Override
         public String getParameter(String name) {
             if (debug) {
@@ -385,7 +336,7 @@ public class SecurityFilter implements Filter {
             }
             return (val == null ? null : cleanXSS(val.toString()));
         }
-        
+
         @Override
         public String[] getParameterValues(String name) {
             if (debug) {
@@ -396,7 +347,7 @@ public class SecurityFilter implements Filter {
             }
             return (String[]) localParams.get(name);
         }
-        
+
         @Override
         public Enumeration getParameterNames() {
             if (debug) {
@@ -406,8 +357,8 @@ public class SecurityFilter implements Filter {
                 return getRequest().getParameterNames();
             }
             return localParams.keys();
-        }        
-        
+        }
+
         @Override
         public Map getParameterMap() {
             if (debug) {
@@ -419,8 +370,13 @@ public class SecurityFilter implements Filter {
             return localParams;
         }
         
+        /**
+         * Cleans the parameters to avoid xss attack
+         * @param value
+         * @return String which is xss free
+         */
         private String cleanXSS(String value) {
-                //You'll need to remove the spaces from the html entities below
+            //You'll need to remove the spaces from the html entities below
             value = value.replaceAll("<", "& lt;").replaceAll(">", "& gt;");
             value = value.replaceAll("\\(", "& #40;").replaceAll("\\)", "& #41;");
             value = value.replaceAll("'", "& #39;");
@@ -439,106 +395,85 @@ public class SecurityFilter implements Filter {
      * You can get access to the wrapped response using the method getResponse()
      */
     class ResponseWrapper extends HttpServletResponseWrapper {
-        
+
         public ResponseWrapper(HttpServletResponse response) {
-            super(response);            
+            super(response);
         }
-        // You might, for example, wish to know what cookies were set on the response
-        // as it went throught the filter chain. Since HttpServletRequest doesn't
-        // have a get cookies method, we will need to store them locally as they
-        // are being set.
-	/*
-        protected Vector cookies = null;
-        
-        // Create a new method that doesn't exist in HttpServletResponse
-        public Enumeration getCookies() {
-        if (cookies == null)
-        cookies = new Vector();
-        return cookies.elements();
-        }
-        
-        // Override this method from HttpServletResponse to keep track
-        // of cookies locally as well as in the wrapped response.
-        public void addCookie (Cookie cookie) {
-        if (cookies == null)
-        cookies = new Vector();
-        cookies.add(cookie);
-        ((HttpServletResponse)getResponse()).addCookie(cookie);
-        }
-         */
     }
-    
-    public void BruteForce(HttpServletRequest request, HttpServletResponse response)
-    {
-            try {
+
+    /**
+     * Checks for Brute Force Attack
+     * @param request
+     * @param response
+     */
+    public void BruteForce(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            //Database Object created
             Database connection = new Database();
+            //connection opened
             connection.opensession();
-            if (connection.findIp(BlacklistedIp.class, request.getRemoteAddr()) == 0) 
-                {
-                if (connection.findIp(verifiedip.class, request.getRemoteAddr()) == 0) 
-                    {                    
+            //Checks if the IP is already blacklisted or not
+            if (connection.findIp(BlacklistedIp.class, request.getRemoteAddr()) == 0) {
+                //Checks if the IP is already Verified or not
+                if (connection.findIp(verifiedip.class, request.getRemoteAddr()) == 0) {
                     iptracker t = null;
+                    //Gets the number of hits that the IP has made before verification
                     t = connection.findIpTracker(request.getRemoteAddr());
-                    if (t == null) 
-                        {
+                    if (t == null) {
+                        //creates a new object and sets the hit count to 1 if the IP is new
                         t = new iptracker(request.getRemoteAddr(), 1);
                         connection.addtoDatabase(t);
                         connection.addtoDatabase(new timeclicked(t, (new Date()).getTime(), new Date()));
                         // Access Welcome Page
-                        }
-                    else 
-                        {
-                        
+                    } else {
+                        //Increments the count
                         t.setNumber_of_hits(t.getNumber_of_hits() + 1);
+                        // Get the list of all the clicks made by that IP
                         List<timeclicked> clicked = connection.findTimeclicked(t.getId());
+                        // if the clicks exceed 10 then check
+                        if (!clicked.isEmpty() && clicked.size() > 10) {
 
-                        if (!clicked.isEmpty() && clicked.size() > 10) 
-                            {
-                            
                             long currenttime = (new Date()).getTime();
+                            //avg time between request
                             long avgtime = avgs(clicked);
-                            if (((currenttime - avgtime) / 1000) < 1000) 
-                                {
-                                if (request.getServletContext().getAttribute(request.getRemoteAddr()) == null) 
-                                    {
+                            //if the avg time between 10 request and the current time difference is less than a second then show captcha
+                            if (((currenttime - avgtime) / 1000) < 1000) {
+                                if (request.getServletContext().getAttribute(request.getRemoteAddr()) == null) {
                                     request.getServletContext().setAttribute(request.getRemoteAddr(), 1);
-                                    } 
-                                else 
-                                    {
-                                    
+                                } else {
+
                                     int z = (Integer) request.getServletContext().getAttribute(request.getRemoteAddr());
-                                    if (z > 10) 
-                                        {
+                                    //if there are 10 wrong attempts of catcha then blacklist that IP
+                                    if (z > 10) {
                                         connection.addtoDatabase(new BlacklistedIp(request.getRemoteAddr()));
-                                        }
+                                    }
                                     request.getServletContext().setAttribute(request.getRemoteAddr(), z + 1);
                                     response.sendRedirect("Security/captcha.jsp");
                                     check = false;
-                                    }   
-
                                 }
-                            }   
-                        connection.addtoDatabase(new timeclicked(t, (new Date()).getTime(), new Date()));
-                        }
-                    }
 
+                            }
+                        }
+                        connection.addtoDatabase(new timeclicked(t, (new Date()).getTime(), new Date()));
+                    }
                 }
-                else
-                {
+
+            } else {
                 // Error Page
                 response.sendRedirect("Security/Error.jsp");
                 check = false;
-                }
+            }
             connection.closesession();
-            } 
-        catch (IOException ex) {
-        }       
-        finally 
-        {
-            
+        } catch (IOException ex) {
+        } finally {
         }
     }
-    
+
+    /**
+     * This gives average of the List of time clicked
+     * @param clicked
+     * @return
+     */
     public long avgs(List<timeclicked> clicked) {
         long sum = 0;
         for (timeclicked t : clicked) {
@@ -549,5 +484,4 @@ public class SecurityFilter implements Filter {
         return sum;
         //throw new UnsupportedOperationException("Not yet implemented");
     }
-
 }
